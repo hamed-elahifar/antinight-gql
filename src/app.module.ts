@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -7,6 +8,13 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: `.env`,
       cache: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        uri: config.getOrThrow('MONGO_URL'),
+      }),
     }),
   ],
   controllers: [],
