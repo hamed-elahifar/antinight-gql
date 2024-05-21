@@ -24,6 +24,7 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
 UserSchema.index({ phone: 1 });
 
 UserSchema.pre('save', async function (next: any) {
