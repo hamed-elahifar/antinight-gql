@@ -13,7 +13,7 @@ export class Game {
   _id: number
 
   @Field(() => String, { nullable: true })
-  @Prop({ type: String, default: () => { return (Math.random() + 1).toString(36).substring(6) } })
+  @Prop({ type: String, default: () => { return makeid(6) }, unique: true, index: true })
   id: string;
 
   @Field(() => [String], { nullable: true })
@@ -28,7 +28,7 @@ export class Game {
   @Prop({ enum: GameStatus, default: GameStatus.LOBBY })
   status: string;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => Date, { nullable: true })
   createdAt: Date;
 
   @Field(() => Date, { nullable: true })
@@ -36,3 +36,15 @@ export class Game {
 }
 
 export const GameSchema = SchemaFactory.createForClass(Game);
+
+function makeid(length) {
+  let result = '';
+  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}

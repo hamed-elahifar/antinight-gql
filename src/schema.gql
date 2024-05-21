@@ -9,7 +9,7 @@ scalar DateTime
 
 type Game {
   _id: String
-  createdAt: String
+  createdAt: DateTime
   id: String
   owner: String
   players: [String!]
@@ -19,7 +19,8 @@ type Game {
 
 type Mutation {
   """create a new game"""
-  newGame: Game!
+  createGame: Game!
+  unsubscribe(id: String!): String!
 
   """create a new game"""
   update(id: String!): Game!

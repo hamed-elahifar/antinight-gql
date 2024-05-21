@@ -22,7 +22,7 @@ export class GameResolver {
   }
 
   @Mutation(() => Game, { description: 'create a new game' })
-  async newGame(/*@Args('game') game: CreateGameInput*/) {
+  async createGame(/*@Args('game') game: CreateGameInput*/) {
     const newGame = await this.gameService.create();
     this.pubsub.publish(newGame.id, { game: newGame });
     return newGame;
@@ -30,9 +30,16 @@ export class GameResolver {
 
   @Mutation(() => Game, { description: 'create a new game' })
   async update(@Args('id') id: string) {
-    const result = await this.gameService.update(id);
-    this.pubsub.publish(result.id, { game: result });
-    return result;
+    const gameData = await this.gameService.update(id);
+    this.pubsub.publish(gameData.id, gameData);
+    return gameData;
+  }
+
+  @Mutation(() => String,)
+  async unsubscribe(@Args('id') id: string) {
+    // @ts-ignore
+    this.pubsub.unsubscribe(1);
+    return "ok";
   }
 
   @Subscription(() => Game, {
@@ -41,8 +48,6 @@ export class GameResolver {
     },
   })
   async newGameEvent(@Args('id') id: string) {
-    return await this.pubsub.asyncIterator(id);
-    // console.log(subResult)
-    // return subResult
+    return this.pubsub.asyncIterator(id);
   }
 }
