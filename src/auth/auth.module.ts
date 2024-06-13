@@ -8,6 +8,8 @@ import { HashingSerivce } from './hashing.service';
 import { BcryptSerive } from './bcrypt.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './user.model';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from 'src/common/guards';
 
 @Module({
   imports: [
@@ -24,6 +26,10 @@ import { User, UserSchema } from './user.model';
   ],
   controllers: [AuthController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AccessTokenGuard,
+    },
     AuthService,
     AccessTokenStrategy,
     {
@@ -32,4 +38,4 @@ import { User, UserSchema } from './user.model';
     },
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

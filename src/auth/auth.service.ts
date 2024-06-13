@@ -43,7 +43,7 @@ export class AuthService {
       .findOne({
         username: dto.username,
       })
-      .select('username password email company roles');
+      .select('username password email  roles');
 
     if (!user) {
       throw new UnauthorizedException('Unauthorized');
@@ -61,7 +61,7 @@ export class AuthService {
     const token = await this.generateToken({
       id: user.id,
       username: user.username,
-      // company: user.company,
+      // : user.,
       roles: user.roles,
     });
 
