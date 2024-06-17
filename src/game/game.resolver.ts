@@ -1,13 +1,13 @@
-import { Resolver, Mutation, Args, Subscription, Query, ID } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Subscription, Query, } from '@nestjs/graphql';
 import { GameService } from './game.service';
-import { CreateGameInput } from './input/create-game.input';
-
 import { Game } from './game.model';
-
 import { PUB_SUB } from 'src/pubsub/pubsub.module';
-import { Inject, ParseIntPipe } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { AccessTokenGuard } from 'src/common/guards';
+import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
 
+@UseGuards(AccessTokenGuard)
 @Resolver()
 export class GameResolver {
   constructor(
@@ -22,7 +22,7 @@ export class GameResolver {
   }
 
   @Mutation(() => Game, { description: 'create a new game' })
-  async createGame(/*@Args('game') game: CreateGameInput*/) {
+  async createGame(@GetCurrentUser() user: any) {
     const newGame = await this.gameService.create();
     this.pubsub.publish(newGame.id, { game: newGame });
     return newGame;

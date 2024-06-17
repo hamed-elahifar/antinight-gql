@@ -26,10 +26,10 @@ import { AccessTokenGuard } from 'src/common/guards';
   ],
   controllers: [AuthController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AccessTokenGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AccessTokenGuard,
+    // },
     AuthService,
     AccessTokenStrategy,
     {

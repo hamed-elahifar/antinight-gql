@@ -22,6 +22,7 @@ export class AuthService {
     private readonly hashingService: HashingSerivce,
   ) {}
 
+  
   async signup(dto: AuthDto): Promise<Tokens> {
     let token;
     try {

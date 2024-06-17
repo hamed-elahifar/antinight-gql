@@ -9,19 +9,54 @@ import { GameResolver } from './game/game.resolver';
 import { GameService } from './game/game.service';
 import { PubsubModule } from './pubsub/pubsub.module';
 import { GameModule } from './game/game.module';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { Environment } from './common/enums/environments.enum';
 
 @Module({
-  imports: 
-    [GraphQLModule.forRoot<ApolloDriverConfig>({
+  imports:
+    [GraphQLModule.forRoot({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: join(process.cwd(), 'src', 'schema.gql'),
       sortSchema: true,
-      playground: false,
-      subscriptions: {
-        'graphql-ws': true
+      playground: true, //process.env.NODE_ENV === Environment.DEV,
+      plugins: [
+        // ApolloServerPluginLandingPageLocalDefault(),
+        // ApolloServerPluginInlineTrace(),
+      ],
+      // context: ({ req, res }) => ({ req, res }),
+      context: ({ req, connection }) =>
+        connection
+          ? {
+            connection: {
+              headers: {
+                authorization: connection.context['Authorization']
+                  ? connection.context['Authorization']
+                  : connection.context['authorization'],
+              },
+            },
+          }
+          : { req },
+      cors: {
+        credentials: true,
+        origin: true,
       },
-      csrfPrevention: false
-
+      installSubscriptionHandlers: true,
+      buildSchemaOptions: {
+        orphanedTypes: [],
+        // numberScalarMode: 'integer',
+      },
+      formatError:
+        process.env.NODE_ENV == Environment.PROD
+          ? (error: GraphQLError) => {
+            const graphQLFormattedError: GraphQLFormattedError = {
+              message:
+                // @ts-expect-error
+                error?.extensions?.exception?.response?.message ||
+                error?.message,
+            };
+            return graphQLFormattedError;
+          }
+          : (error: GraphQLError) => error,
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -39,7 +74,7 @@ import { GameModule } from './game/game.module';
       AuthModule,
       PubsubModule
     ],
-    controllers: [],
-    providers: [],
+  controllers: [],
+  providers: [],
 })
 export class AppModule { }
