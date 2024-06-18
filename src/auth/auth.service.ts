@@ -1,78 +1,73 @@
 import {
-  ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-
-import { AuthDto } from './dto';
-import { JwtPayload, Tokens } from './types';
+import { SignupDto } from './dto';
+import { JwtPayload, Token } from './types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.model';
-import { HashingSerivce } from './hashing.service';
+import { SmsService } from 'src/sms/sms.service';
+import { randomInt } from 'crypto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    private jwtService: JwtService,
-    private config: ConfigService,
-    private readonly hashingService: HashingSerivce,
-  ) {}
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
+    private readonly sms: SmsService,
+  ) { }
 
-  
-  async signup(dto: AuthDto): Promise<Tokens> {
-    let token;
-    try {
-      const user = new this.userModel(dto);
-      await user.save();
-      token = await this.generateToken({
-        id: user.id,
-        username: user.username,
-      });
-    } catch (error) {
-      throw new ConflictException();
-    }
-
-    return token;
-  }
-
-  async login(dto: AuthDto): Promise<Tokens> {
-    const user = await this.userModel
+  async signup(dto: SignupDto): Promise<String> {
+    let user;
+    user = await this.userModel
       .findOne({
-        username: dto.username,
+        phone: dto.phone,
       })
-      .select('username password email  roles');
 
+    // new user
     if (!user) {
-      throw new UnauthorizedException('Unauthorized');
+      user = new this.userModel(dto);
+      user.save();
+      await this.sms.sendVerify(dto.phone, user.twoFA)
+      return "ok"
     }
 
-    const isEqual = await this.hashingService.compare(
-      dto.password,
-      user.password,
-    );
-
-    if (!isEqual) {
-      throw new UnauthorizedException('Unauthorized');
-    }
-
-    const token = await this.generateToken({
-      id: user.id,
-      username: user.username,
-      // : user.,
-      roles: user.roles,
-    });
-
-    return token;
+    user.twoFA = randomInt(10000, 99999)
+    await user.save()
+    await this.sms.sendVerify(dto.phone, user.twoFA)
+    return "OK"
   }
 
-  async generateToken(payload: JwtPayload): Promise<Tokens> {
+  async login(dto: LoginDto): Promise<{ accessToken: string } | string> {
+    let user;
+    user = await this.userModel
+      .findOne({
+        phone: dto.phone,
+      })
+
+    if (!user) { // new user
+      throw new NotFoundException('user not found')
+    }
+
+    if (user.twoFA == dto.code) {
+      user.twoFA = 0
+      await user.save()
+      return this.generateToken({ name: user.name, phone: user.phone })
+    }
+
+    throw new UnauthorizedException();
+  }
+
+  async generateToken(payload: JwtPayload): Promise<{ accessToken: string }> {
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.config.get<string>('JWT_SECRET'),
-      expiresIn: '30d',
+      expiresIn: '1Y',
     });
 
     return { accessToken };

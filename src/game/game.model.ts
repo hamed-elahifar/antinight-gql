@@ -3,6 +3,7 @@ import { GameStatus } from './enum/game.enums';
 import { Document } from 'mongoose';
 import { ID, ObjectType } from '@nestjs/graphql';
 import { Field } from '@nestjs/graphql';
+import { randomGameID } from 'src/common/helpers/random-number-generator';
 
 export type GameDocument = Game & Document;
 
@@ -13,7 +14,7 @@ export class Game {
   _id: number
 
   @Field(() => String, { nullable: true })
-  @Prop({ type: String, default: () => { return makeid(6) }, unique: true, index: true })
+  @Prop({ type: String, default: () => { return randomGameID(6) }, unique: true, index: true })
   id: string;
 
   @Field(() => [String], { nullable: true })
@@ -37,14 +38,4 @@ export class Game {
 
 export const GameSchema = SchemaFactory.createForClass(Game);
 
-function makeid(length) {
-  let result = '';
-  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-}
+

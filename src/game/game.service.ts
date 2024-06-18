@@ -4,14 +4,18 @@ import { UpdateGameInput } from './input/update-game.input';
 import { Game, GameDocument } from './game.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { SmsService } from 'src/sms/sms.service';
 
 @Injectable()
 export class GameService {
-  constructor(@InjectModel(Game.name) private gameModel: Model<GameDocument>) { }
+  constructor(@InjectModel(Game.name) private gameModel: Model<GameDocument>, private readonly smsService: SmsService) { }
 
   async create() {
     const game = new this.gameModel;
     await game.save()
+
+    console.log(game)
+
     return game
   }
 

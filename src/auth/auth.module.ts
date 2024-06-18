@@ -10,6 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './user.model';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from 'src/common/guards';
+import { SmsModule } from 'src/sms/sms.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AccessTokenGuard } from 'src/common/guards';
         schema: UserSchema,
       },
     ]),
+    SmsModule
   ],
   controllers: [AuthController],
   providers: [

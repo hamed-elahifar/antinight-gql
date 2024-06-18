@@ -1,3 +1,4 @@
-export type Tokens = {
-  accessToken: string;
+export type Token = {
+  phone: string,
+  name: string,
 };

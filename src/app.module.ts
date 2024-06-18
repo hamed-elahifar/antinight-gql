@@ -11,10 +11,11 @@ import { PubsubModule } from './pubsub/pubsub.module';
 import { GameModule } from './game/game.module';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { Environment } from './common/enums/environments.enum';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
-  imports:
-    [GraphQLModule.forRoot({
+  imports: [
+    GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src', 'schema.gql'),
       sortSchema: true,
@@ -70,11 +71,14 @@ import { Environment } from './common/enums/environments.enum';
         uri: config.getOrThrow('MONGO_URL'),
       }),
     }),
-      GameModule,
-      AuthModule,
-      PubsubModule
-    ],
+    GameModule,
+    AuthModule,
+    PubsubModule,
+    SmsModule,
+  ],
   controllers: [],
-  providers: [],
+  providers: [
+
+  ],
 })
 export class AppModule { }

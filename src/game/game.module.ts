@@ -7,6 +7,7 @@ import { PubsubModule } from 'src/pubsub/pubsub.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/auth/strategies';
 import jwtConfig from 'src/auth/config/jwt.config';
+import { SmsModule } from 'src/sms/sms.module';
 
 @Module({
   providers: [GameService, GameResolver],
@@ -14,6 +15,7 @@ import jwtConfig from 'src/auth/config/jwt.config';
     JwtModule.registerAsync(jwtConfig.asProvider()),
     MongooseModule.forFeature([{ name: Game.name, schema: GameSchema }]),
     PubsubModule,
+    SmsModule,
   ],
   exports: [GameService, GameResolver]
 })
