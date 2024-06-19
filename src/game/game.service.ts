@@ -8,10 +8,13 @@ import { SmsService } from 'src/sms/sms.service';
 
 @Injectable()
 export class GameService {
-  constructor(@InjectModel(Game.name) private gameModel: Model<GameDocument>, private readonly smsService: SmsService) { }
+  constructor(
+    @InjectModel(Game.name) private model: Model<GameDocument>,
+    private readonly smsService: SmsService
+  ) { }
 
-  async create() {
-    const game = new this.gameModel;
+  async create(jwt) {
+    const game = await this.model.create({ owner: jwt.phone, players: [jwt.phone] });
     await game.save()
 
     console.log(game)
@@ -20,7 +23,7 @@ export class GameService {
   }
 
   async update(id: string): Promise<Game> {
-    const game = await this.gameModel.findOne({ id })
+    const game = await this.model.findOne({ id })
 
     if (!game) {
       throw new NotFoundException('Game NOT Found')

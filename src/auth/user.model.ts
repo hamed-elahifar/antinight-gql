@@ -8,7 +8,7 @@ export type UserType = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop()
+  @Prop({ required: true})
   name: string;
 
   @Prop({ default: () => { randomInt(10000, 99999) } })

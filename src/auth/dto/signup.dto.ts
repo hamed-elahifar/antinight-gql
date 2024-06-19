@@ -5,7 +5,7 @@ export class SignupDto {
   @IsString()
   phone: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  name?: string;
+  name: string;
 }

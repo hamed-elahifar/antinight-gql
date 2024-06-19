@@ -13,17 +13,16 @@ export class GameResolver {
   constructor(
     private readonly gameService: GameService,
     @Inject(PUB_SUB) private readonly pubsub: RedisPubSub,
-  ) { }
-
+  ) {}
 
   @Query(() => String)
   async findAll(/*@Args('id', { type: () => ID }, ParseIntPipe) id: number*/) {
-    return "test" //this.gameService.findOne(id)
+    return "OK" //this.gameService.findOne(id)
   }
 
   @Mutation(() => Game, { description: 'create a new game' })
-  async createGame(@GetCurrentUser() user: any) {
-    const newGame = await this.gameService.create();
+  async createGame(@GetCurrentUser() jwt: any) {
+    const newGame = await this.gameService.create(jwt);
     this.pubsub.publish(newGame.id, { game: newGame });
     return newGame;
   }

@@ -5,10 +5,6 @@ export class LoginDto {
   @IsString()
   phone: string;
 
-  @IsOptional()
-  @IsString()
-  name?: string;
-
   @IsNotEmpty()
   @IsNumber()
   code: number;

@@ -14,12 +14,12 @@ export class SmsService {
 
   async sendVerify(receptor, token): Promise<void> {
     try {
-      const result = await this.smsWebService.SendVerifyCode(
-        receptor,
-        this.configService.getOrThrow<number>('SMS_TEMPLATE'),
-        [{ name: 'CODE', value: token }],
-      );
-      console.log('send sms result', result.data);
+      // const result = await this.smsWebService.SendVerifyCode(
+      //   receptor,
+      //   this.configService.getOrThrow<number>('SMS_TEMPLATE'),
+      //   [{ name: 'CODE', value: token }],
+      // );
+      // console.log('send sms result', result.data);
     } catch (err) {
       console.log('ERROR on SMS', err.response?.data);
     }
